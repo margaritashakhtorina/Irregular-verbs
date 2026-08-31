@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Irregular Verbs Practice</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+        }
+        .animate-pop {
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.96); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .shake {
+            animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen text-slate-800 font-sans flex flex-col justify-between antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="w-full border-b border-white/10 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md">
+                    V2
+                </div>
+                <h1 class="text-base font-bold text-white">Verbs Quiz</h1>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button id="customListBtn" onclick="toggleSetupModal()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                    <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span>Edit Verbs</span>
+                </button>
+                <button id="restartBtn" onclick="restartQuiz()" class="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition font-medium shadow-md flex items-center space-x-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Shuffle</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-xl w-full mx-auto px-4 py-6 flex-1 flex flex-col justify-center">
+
+        <!-- Minimal Scoreboard & Progress -->
+        <div id="quizHeader" class="mb-5 bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 shadow-lg backdrop-blur-md">
+            <div class="flex items-center justify-between mb-2 text-xs text-slate-300 font-medium">
+                <span id="questionCounter" class="bg-indigo-900/80 text-indigo-300 px-2.5 py-0.5 rounded-full font-semibold border border-indigo-700/50">1 of 32</span>
+                <div class="flex items-center space-x-3 text-sm font-bold">
+                    <span class="text-emerald-400">✓ <span id="correctScore">0</span></span>
+                    <span class="text-rose-400">✗ <span id="incorrectScore">0</span></span>
+                </div>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
+                <div id="progressBar" class="bg-indigo-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Question Card -->
+        <div id="questionCard" class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl border border-white/40 animate-pop">
+            <div class="text-center mb-6">
+                <div class="text-xs uppercase tracking-widest text-indigo-500 font-semibold mb-1">V1</div>
+                <h2 id="v1Display" class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight capitalize">
+                    go
+                </h2>
+            </div>
+
+            <!-- Form -->
+            <form id="quizForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <input 
+                    type="text" 
+                    id="v2Input" 
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    placeholder="Type V2..." 
+                    class="w-full px-4 py-3.5 text-center text-2xl font-bold text-slate-900 bg-slate-50 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100 transition outline-none"
+                />
+
+                <button 
+                    type="submit" 
+                    id="submitBtn" 
+                    class="w-full py-3.5 px-5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-base rounded-xl shadow-md transition duration-150 flex items-center justify-center space-x-1"
+                >
+                    <span>Check</span>
+                </button>
+            </form>
+
+            <!-- Instant Feedback -->
+            <div id="feedbackContainer" class="hidden mt-5 pt-5 border-t border-slate-200 animate-pop">
+                <div id="feedbackBanner" class="p-4 rounded-xl flex items-center space-x-3 mb-4">
+                    <div id="feedbackIcon" class="text-xl"></div>
+                    <div id="feedbackDetails" class="text-sm font-medium flex-1"></div>
+                </div>
+
+                <button 
+                    type="button" 
+                    id="nextBtn" 
+                    onclick="loadNextQuestion()" 
+                    class="w-full py-3.5 px-5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-xl transition duration-150 flex items-center justify-center space-x-1"
+                >
+                    <span>Next</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary View -->
+        <div id="summaryCard" class="hidden glass-card rounded-3xl p-8 shadow-2xl border border-white/40 text-center animate-pop">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">Completed</h2>
+
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="text-[10px] text-slate-500 font-bold uppercase">Total</div>
+                    <div id="summaryTotal" class="text-xl font-black text-slate-800 mt-0.5">0</div>
+                </div>
+                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                    <div class="text-[10px] text-emerald-600 font-bold uppercase">Correct</div>
+                    <div id="summaryCorrect" class="text-xl font-black text-emerald-600 mt-0.5">0</div>
+                </div>
+                <div class="bg-rose-50 p-3 rounded-xl border border-rose-200">
+                    <div class="text-[10px] text-rose-600 font-bold uppercase">Accuracy</div>
+                    <div id="summaryAccuracy" class="text-xl font-black text-rose-600 mt-0.5">0%</div>
+                </div>
+            </div>
+
+            <div id="mistakesSection" class="hidden text-left mb-6">
+                <h3 class="font-bold text-slate-700 mb-2 text-xs uppercase tracking-wider">Mistakes:</h3>
+                <div id="mistakesList" class="space-y-1.5 max-h-44 overflow-y-auto pr-1"></div>
+            </div>
+
+            <div class="flex gap-2 justify-center">
+                <button onclick="restartQuiz()" class="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow transition text-sm">
+                    Restart
+                </button>
+                <button onclick="toggleSetupModal()" class="flex-1 py-3 px-4 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl transition text-sm">
+                    Edit Verbs
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom List Modal -->
+    <div id="setupModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-pop">
+            <button onclick="toggleSetupModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <h3 class="text-lg font-bold text-slate-900 mb-3">Verb List (V1 - V2)</h3>
+            <textarea 
+                id="customListInput" 
+                rows="10" 
+                class="w-full p-3 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed bg-slate-50 mb-4"
+            ></textarea>
+
+            <div class="flex justify-end space-x-2">
+                <button onclick="loadDefaultList()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
+                    Reset Default
+                </button>
+                <button onclick="saveCustomList()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition">
+                    Save & Start
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-3 text-center text-[11px] text-slate-500">
+        Irregular Verbs Quiz
+    </footer>
+
+    <script>
+        // Updated dataset provided by teacher
+        const DEFAULT_VERBS = [
+            { v1: "be", v2: "was/were" },
+            { v1: "bring", v2: "brought" },
+            { v1: "buy", v2: "bought" },
+            { v1: "come", v2: "came" },
+            { v1: "do", v2: "did" },
+            { v1: "drink", v2: "drank" },
+            { v1: "eat", v2: "ate" },
+            { v1: "feel", v2: "felt" },
+            { v1: "get", v2: "got" },
+            { v1: "go", v2: "went" },
+            { v1: "give", v2: "gave" },
+            { v1: "have", v2: "had" },
+            { v1: "hear", v2: "heard" },
+            { v1: "know", v2: "knew" },
+            { v1: "make", v2: "made" },
+            { v1: "read", v2: "read" },
+            { v1: "run", v2: "ran" },
+            { v1: "say", v2: "said" },
+            { v1: "see", v2: "saw" },
+            { v1: "sing", v2: "sang" },
+            { v1: "sit", v2: "sat" },
+            { v1: "sleep", v2: "slept" },
+            { v1: "speak", v2: "spoke" },
+            { v1: "spend", v2: "spent" },
+            { v1: "stand", v2: "stood" },
+            { v1: "swim", v2: "swam" },
+            { v1: "take", v2: "took" },
+            { v1: "think", v2: "thought" },
+            { v1: "understand", v2: "understood" },
+            { v1: "wear", v2: "wore" },
+            { v1: "write", v2: "wrote" },
+            { v1: "learn", v2: "learnt/learned" }
+        ];
+
+        let activeVerbsList = [...DEFAULT_VERBS];
+        let quizQueue = [];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let mistakes = [];
+        let isAnswered = false;
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initQuiz() {
+            quizQueue = shuffleArray(activeVerbsList);
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            mistakes = [];
+            isAnswered = false;
+
+            document.getElementById("summaryCard").classList.add("hidden");
+            document.getElementById("questionCard").classList.remove("hidden");
+            document.getElementById("quizHeader").classList.remove("hidden");
+
+            updateScoreboard();
+            displayCurrentQuestion();
+        }
+
+        function updateScoreboard() {
+            document.getElementById("correctScore").textContent = correctCount;
+            document.getElementById("incorrectScore").textContent = incorrectCount;
+            document.getElementById("questionCounter").textContent = `${currentIndex + 1} of ${quizQueue.length}`;
+            const progressPercent = ((currentIndex) / quizQueue.length) * 100;
+            document.getElementById("progressBar").style.width = `${progressPercent}%`;
+        }
+
+        function displayCurrentQuestion() {
+            if (currentIndex >= quizQueue.length) {
+                showSummary();
+                return;
+            }
+
+            const currentObj = quizQueue[currentIndex];
+            document.getElementById("v1Display").textContent = currentObj.v1;
+            
+            const inputField = document.getElementById("v2Input");
+            inputField.value = "";
+            inputField.disabled = false;
+            inputField.focus();
+
+            document.getElementById("submitBtn").classList.remove("hidden");
+            document.getElementById("feedbackContainer").classList.add("hidden");
+            isAnswered = false;
+
+            updateScoreboard();
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            if (isAnswered) return;
+
+            const inputField = document.getElementById("v2Input");
+            const rawUserAnswer = inputField.value.trim();
+
+            if (!rawUserAnswer) {
+                inputField.classList.add("shake");
+                setTimeout(() => inputField.classList.remove("shake"), 350);
+                return;
+            }
+
+            isAnswered = true;
+            inputField.disabled = true;
+
+            const currentObj = quizQueue[currentIndex];
+            const isCorrect = verifyAnswer(rawUserAnswer, currentObj.v2);
+
+            document.getElementById("submitBtn").classList.add("hidden");
+            document.getElementById("feedbackContainer").classList.remove("hidden");
+
+            const banner = document.getElementById("feedbackBanner");
+            const icon = document.getElementById("feedbackIcon");
+            const details = document.getElementById("feedbackDetails");
+
+            if (isCorrect) {
+                correctCount++;
+                banner.className = "p-3.5 rounded-xl flex items-center space-x-3 bg-emerald-50 border border-emerald-200 text-emerald-900";
+                icon.textContent = "✓";
+                details.innerHTML = `<span class="font-bold text-emerald-700">Correct!</span> (${escapeHtml(currentObj.v1)} → <strong>${escapeHtml(currentObj.v2)}</strong>)`;
+            } else {
+                incorrectCount++;
+                mistakes.push({
+                    v1: currentObj.v1,
+                    v2: currentObj.v2,
+                    userAns: rawUserAnswer
+                });
+                banner.className = "p-3.5 rounded-xl flex items-center space-x-3 bg-rose-50 border border-rose-200 text-rose-900";
+                icon.textContent = "✗";
+                details.innerHTML = `Your answer: <span class="line-through text-rose-600">${escapeHtml(rawUserAnswer)}</span> | Correct: <strong class="text-emerald-700">${escapeHtml(currentObj.v2)}</strong>`;
+            }
+
+            updateScoreboard();
+            document.getElementById("nextBtn").focus();
+        }
+
+        function verifyAnswer(userAns, targetV2) {
+            const cleanUser = userAns.toLowerCase().trim();
+            const validOptions = targetV2.toLowerCase().split(/[\/,]/).map(opt => opt.trim());
+            return validOptions.includes(cleanUser);
+        }
+
+        function loadNextQuestion() {
+            currentIndex++;
+            displayCurrentQuestion();
+        }
+
+        function showSummary() {
+            document.getElementById("questionCard").classList.add("hidden");
+            document.getElementById("quizHeader").classList.add("hidden");
+            document.getElementById("summaryCard").classList.remove("hidden");
+
+            const total = quizQueue.length;
+            const accuracy = Math.round((correctCount / total) * 100) || 0;
+
+            document.getElementById("summaryTotal").textContent = total;
+            document.getElementById("summaryCorrect").textContent = correctCount;
+            document.getElementById("summaryAccuracy").textContent = `${accuracy}%`;
+
+            const mistakesSection = document.getElementById("mistakesSection");
+            const mistakesList = document.getElementById("mistakesList");
+            mistakesList.innerHTML = "";
+
+            if (mistakes.length > 0) {
+                mistakesSection.classList.remove("hidden");
+                mistakes.forEach(m => {
+                    const item = document.createElement("div");
+                    item.className = "p-2 bg-slate-50 rounded-lg text-xs flex justify-between items-center border border-slate-200";
+                    item.innerHTML = `
+                        <div>
+                            <span class="font-bold text-slate-800">${escapeHtml(m.v1)}</span> → 
+                            <span class="text-emerald-600 font-bold">${escapeHtml(m.v2)}</span>
+                        </div>
+                        <div class="text-rose-500">You: ${escapeHtml(m.userAns)}</div>
+                    `;
+                    mistakesList.appendChild(item);
+                });
+            } else {
+                mistakesSection.classList.add("hidden");
+            }
+        }
+
+        function toggleSetupModal() {
+            const modal = document.getElementById("setupModal");
+            modal.classList.toggle("hidden");
+
+            if (!modal.classList.contains("hidden")) {
+                const formattedList = activeVerbsList.map(item => `${item.v1} - ${item.v2}`).join("\n");
+                document.getElementById("customListInput").value = formattedList;
+            }
+        }
+
+        function saveCustomList() {
+            const text = document.getElementById("customListInput").value.trim();
+            if (!text) return;
+
+            const lines = text.split("\n");
+            const parsed = [];
+
+            lines.forEach(line => {
+                const parts = line.split(/[-–—,:]/);
+                if (parts.length >= 2) {
+                    const v1 = parts[0].trim();
+                    const v2 = parts.slice(1).join("-").trim();
+                    if (v1 && v2) {
+                        parsed.push({ v1, v2 });
+                    }
+                }
+            });
+
+            if (parsed.length > 0) {
+                activeVerbsList = parsed;
+                toggleSetupModal();
+                initQuiz();
+            }
+        }
+
+        function loadDefaultList() {
+            activeVerbsList = [...DEFAULT_VERBS];
+            const formattedList = activeVerbsList.map(item => `${item.v1} - ${item.v2}`).join("\n");
+            document.getElementById("customListInput").value = formattedList;
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        window.onload = function() {
+            initQuiz();
+        };
+    </script>
+</body>
+</html>
